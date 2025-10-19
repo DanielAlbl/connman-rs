@@ -78,7 +78,7 @@ pub fn write_wifi_service_config(s: &str) -> Result<(), io::Error> {
 
     let path = Path::new(WIFI_SERVICE_CONFIG_FILE);
 
-    let mut file = File::create(&path)?;
+    let mut file = File::create(path)?;
 
     file.write_all(s.as_bytes())
 }
@@ -88,10 +88,7 @@ async fn main() {
     let args = WifiConnectOpts::from_args();
 
     if !args.disconnect {
-        let prov = generate_wifi_config(
-            args.ssid.as_str(),
-            args.password.as_ref().map(|s| s.as_str()),
-        );
+        let prov = generate_wifi_config(args.ssid.as_str(), args.password.as_deref());
 
         write_wifi_service_config(prov.as_str()).expect("Failed to write wifi service config");
 
@@ -118,19 +115,14 @@ async fn main() {
     let maybe_svc = services.iter().find(|svc| {
         //wifi_ffffffffffff_00112233aabbccdd_managed_psk
         //tech_mac.addr...._hex.ssid........_security...
-        let pathv = svc
-            .path()
-            .as_cstr()
-            .to_str()
-            .unwrap()
-            .split("_")
-            .collect::<Vec<&str>>();
+        let path_str = svc.path().to_string();
+        let pathv = path_str.split("_").collect::<Vec<&str>>();
         let svc_hex_ssid = *pathv.get(2).unwrap();
         let found = svc_hex_ssid == hex_ssid;
         if found {
             println!("Found service: {:?}", svc.path());
         } else {
-            let svc_ssid_str = hex::decode(&svc_hex_ssid)
+            let svc_ssid_str = hex::decode(svc_hex_ssid)
                 .map(|s| String::from_utf8(s).expect("Failed to turn ssid into string"));
             if let Ok(ssid) = svc_ssid_str {
                 println!("{} != {}", ssid, args.ssid);

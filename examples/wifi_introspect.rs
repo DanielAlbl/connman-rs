@@ -20,7 +20,7 @@ pub async fn get_technology_wifi<T: NonblockReply, C: Deref<Target = T> + Clone>
 // Shamelessly borrowed from the example in `xml-rs` doc:
 // https://github.com/netvl/xml-rs#reading-xml-documents
 fn indent(size: usize) -> String {
-    const INDENT: &'static str = "    ";
+    const INDENT: &str = "    ";
     (0..size)
         .map(|_| INDENT)
         .fold(String::with_capacity(size * INDENT.len()), |r, s| r + s)

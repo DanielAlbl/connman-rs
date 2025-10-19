@@ -44,11 +44,11 @@ fn get_property<T: Clone + 'static>(
 ) -> Result<T, PropertyError> {
     properties
         .get(prop_name)
-        .ok_or_else(|| PropertyError::NotPresent(Cow::Borrowed(prop_name)))
+        .ok_or(PropertyError::NotPresent(Cow::Borrowed(prop_name)))
         .and_then(|variant| {
             cast::<T>(&variant.0)
                 .cloned()
-                .ok_or_else(|| PropertyError::Cast(Cow::Borrowed(prop_name)))
+                .ok_or(PropertyError::Cast(Cow::Borrowed(prop_name)))
         })
 }
 
@@ -59,12 +59,12 @@ fn get_property_fromstr<T: FromStr + 'static>(
 ) -> Result<T, PropertyError> {
     properties
         .get(prop_name)
-        .ok_or_else(|| PropertyError::NotPresent(Cow::Borrowed(prop_name)))
+        .ok_or(PropertyError::NotPresent(Cow::Borrowed(prop_name)))
         .and_then(|variant| {
             variant
                 .as_str()
                 .and_then(|s| T::from_str(s).ok())
-                .ok_or_else(|| PropertyError::Cast(Cow::Borrowed(prop_name)))
+                .ok_or(PropertyError::Cast(Cow::Borrowed(prop_name)))
         })
 }
 
@@ -75,12 +75,12 @@ fn get_property_argiter<'a>(
 ) -> Result<RefArgIter<'a>, PropertyError> {
     properties
         .get(prop_name)
-        .ok_or_else(|| PropertyError::NotPresent(Cow::Borrowed(prop_name)))
+        .ok_or(PropertyError::NotPresent(Cow::Borrowed(prop_name)))
         .and_then(|variant| {
             variant
                 .0
                 .as_iter()
-                .ok_or_else(|| PropertyError::Cast(Cow::Borrowed(prop_name)))
+                .ok_or(PropertyError::Cast(Cow::Borrowed(prop_name)))
         })
 }
 
